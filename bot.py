@@ -17,9 +17,14 @@ async def async_get_user_stats(username: str) -> UserStats:
             data = await response.json()
             return UserStats(**data)
 
+
 @dp.message(CommandStart())
 async def start_command(message: types.Message):
-    await message.reply("Привет! Напишите имя пользователя Codewars, чтобы получить его статистику.", parse_mode=types.ParseMode.HTML)
+    await message.reply(
+        "Привет! Напишите имя пользователя Codewars, чтобы получить его статистику.",
+        parse_mode=types.ParseMode.HTML,
+    )
+
 
 def get_pretty_info(title: str, rank: int, name: str, color: str, score: int) -> str:
     return (
@@ -30,12 +35,15 @@ def get_pretty_info(title: str, rank: int, name: str, color: str, score: int) ->
         f"  Счет: {score}\n"
     )
 
+
 @dp.message()
 async def echo_message(message: types.Message):
     username = message.text
     try:
         user_stats = await async_get_user_stats(username)
-        overall = get_pretty_info('Суммарный результат', **user_stats.ranks["overall"].model_dump())
+        overall = get_pretty_info(
+            "Суммарный результат", **user_stats.ranks["overall"].model_dump()
+        )
         languages: Languages = user_stats.ranks["languages"]
         languages_stats = "<b>Отдельно по языкам:</b>\n"
         for language, stat in languages.items():
@@ -50,10 +58,10 @@ async def echo_message(message: types.Message):
         print(f"Error: {e}")
         await message.reply("Не удалось получить статистику пользователя.")
 
+
 async def main():
     await dp.start_polling(bot)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     asyncio.run(main())
-
-

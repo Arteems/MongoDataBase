@@ -1,5 +1,4 @@
-from pydantic import BaseModel    
-
+from pydantic import BaseModel
 
 
 class LanguageInfo(BaseModel):
@@ -9,7 +8,7 @@ class LanguageInfo(BaseModel):
     score: int
 
 
-Languages = dict[str, LanguageInfo]    
+Languages = dict[str, LanguageInfo]
 
 
 class UserStats(BaseModel):
@@ -19,5 +18,4 @@ class UserStats(BaseModel):
 
 class User(BaseModel):
     id: int
-    username: str    
-
+    username: str
