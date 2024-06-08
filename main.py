@@ -1,10 +1,10 @@
-from fastapi import FastAPI, HTTPException, Status
+from fastapi import FastAPI, HTTPException, status
 from typing import Dict
 import uvicorn
 import aiohttp
-from shemas import UserStats
+from shemas import UserStats, User
 from config import settings
-from mongo_crud import get_user
+from mongo_crud import get_user, add_user, delete_user, update_user
 
 
 app = FastAPI()
@@ -30,41 +30,44 @@ async def async_get_user_stats(username: str):
         except aiohttp.ClientError as e:
             print(f"Ошибка при получении статистики пользователя: {e}")
             raise HTTPException(
-                status_code=404, detail=f"Пользователь '{username}' не найден."
+                status_code=404,
+                detail=f"Пользователь '{username}' не найден.",
             )
 
 
-@app.post("/create_user")
-def create_user(user: User):
+@app.post("/create_user", status_code=status.HTTP_201_CREATED, response_model=UserStats)
+def create(user: User):
     if get_user(user_id=user.id):
         raise HTTPException(
-            status_code=Status.HTTP_404_NOT_FOUND,
+            status_code=status.HTTP_409_CONFLICT,
             detail="Пользователь с таким ником уже существует",
         )
 
-    new_user = create_user(user_create)
-    return new_user
+    return add_user(user)
 
 
-@app.put("/update_user/{user_id}", response_model=User)
-def update_user(user_id: str, user_update: UserUpdate):
+@app.put(
+    "/update_user/{user_id}",
+    response_model=UserStats,
+    status_code=status.HTTP_201_CREATED,
+)
+def update(user_id: str, user_update: UserStats):
+    user = get_user(user_id=user_id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Пользователь с таким ником не найден",
+        )
+
+    return update_user(user_id=user_id, user_update=user_update)
+
+
+@app.delete("/delete_user/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete(user_id: str):
     user = get_user(user_id=user_id)
     if not user:
         raise HTTPException(
             status_code=Status.HTTP_404_NOT_FOUND,
-            detail="Пользователь с таким ником не найден",
-        )
-
-    update_user = update_user(user_id=user_id, user_update=user_update)
-    return update_user
-
-
-@app.delete("/delete_user/{user_id}", status_code=Status.HTTP_204_NO_CONTENT)
-def delete_user(user_id: str):
-    user = get_user(user_id=user_id)
-    if not user:
-        raise HTTPException(
-            status_code=Status.HTTP_204_NOT_FOUND,
             detail="Пользователь не найден",
         )
 
