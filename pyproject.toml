@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "bot-stat-api"
+version = "0.1.0"
+description = ""
+authors = ["Artem"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.111.0"
+basemodel = "^20190604.1625"
+uvicorn = "^0.29.0"
+aiohttp = "^3.9.5"
+aiogram = "^3.6.0"
+motor = "^3.4.0"
+pydantic-settings = "^2.2.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
