@@ -67,7 +67,7 @@ def delete(user_id: str):
     user = get_user(user_id=user_id)
     if not user:
         raise HTTPException(
-            status_code=Status.HTTP_404_NOT_FOUND,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="Пользователь не найден",
         )
 

@@ -3,7 +3,7 @@ from aiogram import Bot, Dispatcher, types
 from shemas import UserStats
 import aiohttp
 from aiogram.filters import CommandStart
-from shemas import Languages
+from shemas import Languages, User
 from config import settings
 
 bot = Bot(token=settings.token.get_secret_value())
@@ -16,6 +16,34 @@ async def async_get_user_stats(username: str) -> UserStats:
             response.raise_for_status()
             data = await response.json()
             return UserStats(**data)
+
+
+async def async_create_user(user: User) -> User:
+    async with aiohttp.ClientSession() as session:
+        async with session.post(
+            f"{settings.BASE_URL})/users", json=user.dict()
+        ) as response:
+            response.raise_for_status()
+            data = await response.json()
+            return User(**data)
+
+
+async def update_user(user: User) -> User:
+    async with aiohttp.ClientSession() as session:
+        async with session.put(
+            f"{settings.BASE_URL}/users/{user.id}", json=user.dict()
+        ) as response:
+            response.raise_for_status()
+            data = await response.json()
+            return User(**data)
+
+
+async def async_delete_user(user: User) -> User:
+    async with aiohttp.ClientSession() as session:
+        async with session.delete(
+            f"{settings.BASE_URL}/users/{user.id}", json=user.dict()
+        ) as response:
+            response.raise_for_status()
 
 
 @dp.message(CommandStart())
