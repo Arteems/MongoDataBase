@@ -1,9 +1,9 @@
 import asyncio
 from aiogram import Bot, Dispatcher, types
-from shemas import UserStats
+from app.shemas import UserStats
 import aiohttp
 from aiogram.filters import CommandStart
-from shemas import Languages, User
+from app.shemas import Languages, User
 from config import settings
 
 bot = Bot(token=settings.token.get_secret_value())

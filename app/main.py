@@ -4,7 +4,7 @@ import uvicorn
 import aiohttp
 from app.shemas import UserStats, User
 from config import settings
-from app.mongo_crud import get_user, add_user, delete_user, update_user
+from app.mongo_crud import get_user, add_user, delete_user, update_user, get_user_by_username
 from app.exceptions import UserNotFoundHTTPException, UsernameAllreadyExistHTTPException
 
 
@@ -13,24 +13,14 @@ app = FastAPI()
 user_stats: Dict[str, UserStats] = {}
 
 
-@app.get("/stats/{username}", response_model=UserStats)
-async def async_get_user_stats(username: str):
-    if username in user_stats:
-        return user_stats[username]
+@app.get("/stats", response_model=UserStats)
+async def async_get_user_stats(username: str, id: int):
+    user_data = get_user_by_username(username)
+    if user_data is None:
+        user = User(id = id, username = username)
+        add_user(user)
 
-    async with aiohttp.ClientSession() as session:
-        try:
-            async with session.get(
-                f"{settings.BASE_CODEWARS_URL}/{username}"
-            ) as response:
-                response.raise_for_status()
-                data = await response.json()
-                user_stats_obj = UserStats(**data)
-                user_stats[username] = user_stats_obj
-                return user_stats_obj
-        except aiohttp.ClientError as e:
-            print(f"Ошибка при получении статистики пользователя: {e}")
-            raise UserNotFoundHTTPException
+    
 
 
 @app.post("/create_user", status_code=status.HTTP_201_CREATED, response_model=UserStats)
