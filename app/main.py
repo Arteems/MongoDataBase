@@ -1,10 +1,11 @@
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, status
 from typing import Dict
 import uvicorn
 import aiohttp
-from shemas import UserStats, User
+from app.shemas import UserStats, User
 from config import settings
-from mongo_crud import get_user, add_user, delete_user, update_user
+from app.mongo_crud import get_user, add_user, delete_user, update_user
+from app.exceptions import UserNotFoundHTTPException, UsernameAllreadyExistHTTPException
 
 
 app = FastAPI()
@@ -29,19 +30,13 @@ async def async_get_user_stats(username: str):
                 return user_stats_obj
         except aiohttp.ClientError as e:
             print(f"Ошибка при получении статистики пользователя: {e}")
-            raise HTTPException(
-                status_code=404,
-                detail=f"Пользователь '{username}' не найден.",
-            )
+            raise UserNotFoundHTTPException
 
 
 @app.post("/create_user", status_code=status.HTTP_201_CREATED, response_model=UserStats)
 def create(user: User):
     if get_user(user_id=user.id):
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Пользователь с таким ником уже существует",
-        )
+        raise UsernameAllreadyExistHTTPException
 
     return add_user(user)
 
@@ -54,10 +49,7 @@ def create(user: User):
 def update(user_id: str, user_update: UserStats):
     user = get_user(user_id=user_id)
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Пользователь с таким ником не найден",
-        )
+        raise UserNotFoundHTTPException
 
     return update_user(user_id=user_id, user_update=user_update)
 
@@ -66,10 +58,7 @@ def update(user_id: str, user_update: UserStats):
 def delete(user_id: str):
     user = get_user(user_id=user_id)
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Пользователь не найден",
-        )
+        raise UserNotFoundHTTPException
 
     delete_user(user_id=user_id)
 
