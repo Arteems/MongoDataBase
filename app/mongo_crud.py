@@ -37,4 +37,3 @@ def get_user(user_id: int) -> UserStats | None:
 def get_user_by_username(username: str) -> UserStats | None:
     user_data = collection.find_one({"username": username})
     return UserStats(**user_data) if user_data else None
-
