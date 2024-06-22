@@ -10,7 +10,7 @@ current_db = db_client["pymongodb"]
 collection = current_db["users"]
 
 
-def add_user(user_id: int, user_stats: UserStats) -> UserStats:
+def create_user(user_id: int, user_stats: UserStats) -> UserStats:
     new_user = {"id": user_id, **user_stats.model_dump()}
     collection.insert_one(new_user)
     return get_user(user_id)

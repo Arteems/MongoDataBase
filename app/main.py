@@ -1,28 +1,27 @@
 from fastapi import FastAPI, status
-from typing import Dict
 import uvicorn
 from app.shemas import UserStats, User
 from app.exceptions import UserNotFoundHTTPException, UsernameAllreadyExistHTTPException
-from app.user_crud import (
+from app.mongo_crud import (
     create_user,
-    update_user_stats,
     get_user_by_username,
     get_user,
     update_user,
+    delete_user,
 )
 
 app = FastAPI()
 
 
 @app.get("/stats", response_model=UserStats)
-async def async_get_user_stats(username: str, id: int):
+def get_user_stats(username: str, id: id):
     user_data = get_user_by_username(username)
     if user_data is None:
         user = User(id=id, username=username)
         user_data = create_user(user)
         return user_data
     else:
-        return update_user_stats(user_data.id, user_data)
+        return update_user(user_data.id, user_data)
 
 
 @app.post("/create_user", status_code=status.HTTP_201_CREATED, response_model=UserStats)
